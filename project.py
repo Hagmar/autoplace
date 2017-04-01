@@ -1,0 +1,58 @@
+from PIL import Image
+import numpy as np
+import sys
+
+
+class Project:
+    _colormap = {
+        (255, 255, 255): 0,
+        (228, 228, 228): 1,
+        (136, 136, 136): 2,
+        (34, 34, 34)   : 3,
+        (255, 167, 209): 4,
+        (229, 0, 0)    : 5,
+        (229, 149, 0)  : 6,
+        (160, 106, 66) : 7,
+        (229, 217, 0)  : 8,
+        (148, 224, 68) : 9,
+        (2, 190, 1)    : 10,
+        (0, 211, 221)  : 11,
+        (0, 131, 199)  : 12,
+        (0, 0, 234)    : 13,
+        (207, 110, 228): 14,
+        (130, 0, 128)  : 15
+    }
+    def __init__(self, image, x, y):
+        assert 0 <= x <= 999 and 0 <= y <= 999
+        self.x = x
+        self.y = y
+        self.parse_image(image)
+        self.h, self.w = self.target.shape
+
+    def parse_image(self, image):
+        data = self.read_image(image)
+        self.target = self.map_colors(data)
+
+    def read_image(self, image):
+        try:
+            img = Image.open(image)
+        except OSError:
+            print("Error: could not identify image file type",
+                  file=sys.stderr)
+        assert 0 <= self.x + img.width <= 999 and 0 <= self.y + img.height <= 999
+        return np.asarray(img)
+
+    def map_colors(self, data):
+        mapped_colors = np.zeros((data.shape[:-1]))
+        for y, row in enumerate(data):
+            for x, pixel in enumerate(row):
+                mapped_colors[y][x] = self._colormap.get(tuple(pixel), -1)
+        return mapped_colors
+
+    def get_pixel_to_change(self, board):
+        board_colors = board.board[p.y:p.y+p.h, p.x:p.x+p.w]
+        diff = board_colors != self.target
+        pixels = np.argwhere(diff)
+        if not pixels.size:
+            return None
+        return pixels[np.random.randint(pixels.size)]
