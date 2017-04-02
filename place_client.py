@@ -95,7 +95,7 @@ class PlaceClient:
             print('Error: Drawing failed', file=sys.stderr)
             return False
         print(status)
-        if 'wait_seconds' in status:
+        if not status['error']:
             print('Drew pixel ({}, {}) successfully!'.format(
                 x, y), file=sys.stderr)
             return status['wait_seconds']
