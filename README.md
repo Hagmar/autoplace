@@ -16,7 +16,7 @@ Clients can then connect to servers and will automatically be given instructions
 * [Websockets](https://pypi.python.org/pypi/numpy)
 * A Reddit account (If running a client)
 
-These can be installed manually or by running `pip install -r requirements.txt`
+These can be installed manually or by running `pip3 install -r requirements.txt`
 
 # How to use
 1. Make sure you fulfill the requirements above
