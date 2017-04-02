@@ -39,6 +39,7 @@ class Project:
         except OSError:
             print("Error: could not identify image file type",
                   file=sys.stderr)
+            return np.ones([1])
         assert 0 <= self.x + img.width <= 999 and 0 <= self.y + img.height <= 999
         return np.asarray(img)
 
@@ -50,9 +51,12 @@ class Project:
         return mapped_colors
 
     def get_pixel_to_change(self, board):
-        board_colors = board.board[p.y:p.y+p.h, p.x:p.x+p.w]
+        board_colors = board.board[self.y:self.y+self.h,
+                                   self.x:self.x+self.w]
         diff = board_colors != self.target
+        diff[self.target == -1] = False
         pixels = np.argwhere(diff)
         if not pixels.size:
             return None
-        return pixels[np.random.randint(pixels.size)]
+        index = pixels[np.random.randint(len(pixels))]
+        return (index, self.target[index[0]][index[1]])
