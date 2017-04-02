@@ -1,4 +1,5 @@
 from board import Board
+from project import Project
 import argparse
 import asyncio
 import json
@@ -14,15 +15,28 @@ URL_PLACE = 'https://www.reddit.com/r/place/'
 
 
 class PlaceServer:
+    _invalid_request_response = {
+        'error': True,
+        'message': 'Invalid request'
+    }
+
     def __init__(self):
-        pass
+        self.projects = {}
 
     def run(self, args):
         self.board = Board()
 
+    # TODO: Temporary
+        new_project = Project(args.project_picture, args.x, args.y)
+        self.projects[0] = new_project
+
         # Thread handling board updates
         self.update_thread = threading.Thread(target=self.manage_board)
         self.update_thread.start()
+
+        start_server = websockets.serve(self.client_loop, args.host, args.port)
+        asyncio.get_event_loop().run_until_complete(start_server)
+        asyncio.get_event_loop().run_forever()
 
     def manage_board(self):
         loop = asyncio.new_event_loop()
@@ -45,6 +59,31 @@ class PlaceServer:
         color = payload['color']
         self.board.update_pixel(x, y, color)
 
+    async def client_loop(self, ws, path):
+        request = await ws.recv()
+        print('Received: {} from {}'.format(request, ws.remote_address))
+        try:
+            data = json.loads(request)
+        except:
+            await ws.send('{"error":true,"message":"Invalid JSON request (invalid JSON)"}')
+            return
+        if 'project' not in data:
+            await ws.send('{"error":true,"message":"Missing project argument"}')
+            return
+        try:
+            project = self.projects[data['project']]
+        except KeyError:
+            await ws.send('{"error":true,"message":"Project does not exist"}')
+            return
+        action = project.get_pixel_to_change(self.board)
+        if not action:
+            await ws.send('{"error":true,"message":"The project is finished!"}')
+            return
+        (y, x), color = action
+        await ws.send(json.dumps({"error":False,
+                                  "x":int(x), "y":int(y),
+                                  "color":int(color)}))
+
 
 def get_place_websocket_url():
     while True:
@@ -58,11 +97,18 @@ def main():
     server = PlaceServer()
     server.run(args)
 
+# TODO: Temporarily requires initial project
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('host',
+    parser.add_argument('project_picture',
+                        help='Image to be drawn')
+    parser.add_argument('x', type=int,
+                        help='X-coordinate to draw image at')
+    parser.add_argument('y', type=int,
+                        help='Y-coordinate to draw image at')
+    parser.add_argument('host', default='0.0.0.0', nargs='?',
                         help='Hosts to allow')
-    parser.add_argument('port', type=int, default=8080,
+    parser.add_argument('port', type=int, default=8080, nargs='?',
                         help='Port to listen to')
     return parser.parse_args()
 if __name__ == '__main__':
