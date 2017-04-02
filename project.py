@@ -22,12 +22,13 @@ class Project:
         (207, 110, 228): 14,
         (130, 0, 128)  : 15
     }
-    def __init__(self, image, x, y):
+    def __init__(self, image, x, y, pid):
         assert 0 <= x <= 999 and 0 <= y <= 999
         self.x = x
         self.y = y
         self.parse_image(image)
         self.h, self.w = self.target.shape
+        self.pid = pid
 
     def parse_image(self, image):
         data = self.read_image(image)
@@ -59,4 +60,6 @@ class Project:
         if not pixels.size:
             return None
         index = pixels[np.random.randint(len(pixels))]
-        return (index, self.target[index[0]][index[1]])
+        board_y = self.y + index[1]
+        board_x = self.x + index[0]
+        return (board_x, board_y, self.target[index[0]][index[1]])

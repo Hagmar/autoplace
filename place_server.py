@@ -27,8 +27,9 @@ class PlaceServer:
         self.board = Board()
 
     # TODO: Temporary
-        new_project = Project(args.project_picture, args.x, args.y)
-        self.projects[0] = new_project
+        pid = 'test'
+        new_project = Project(args.project_picture, args.x, args.y, pid)
+        self.projects[pid] = new_project
 
         # Thread handling board updates
         self.update_thread = threading.Thread(target=self.manage_board)
@@ -79,7 +80,7 @@ class PlaceServer:
         if not action:
             await ws.send('{"error":true,"message":"The project is finished!"}')
             return
-        (y, x), color = action
+        (x, y, color) = action
         await ws.send(json.dumps({"error":False,
                                   "x":int(x), "y":int(y),
                                   "color":int(color)}))
