@@ -29,7 +29,7 @@ class PlaceServer:
         # TODO: Allow several projects
         new_project = Project(args.project_picture, args.x,
                               args.y, args.project_name)
-        self.projects[pid] = new_project
+        self.projects[args.project_name] = new_project
 
         # Thread handling board updates
         self.update_thread = threading.Thread(target=self.manage_board)
