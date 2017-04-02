@@ -26,9 +26,9 @@ class PlaceServer:
     def run(self, args):
         self.board = Board()
 
-    # TODO: Temporary
-        pid = 'test'
-        new_project = Project(args.project_picture, args.x, args.y, pid)
+        # TODO: Allow several projects
+        new_project = Project(args.project_picture, args.x,
+                              args.y, args.project_name)
         self.projects[pid] = new_project
 
         # Thread handling board updates
@@ -101,6 +101,8 @@ def main():
 # TODO: Temporarily requires initial project
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument('project_name',
+                        help='Name of running project')
     parser.add_argument('project_picture',
                         help='Image to be drawn')
     parser.add_argument('x', type=int,
