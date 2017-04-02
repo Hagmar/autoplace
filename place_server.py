@@ -46,14 +46,18 @@ class PlaceServer:
         loop.run_until_complete(self.update_loop())
 
     async def update_loop(self):
-        ws_url = get_place_websocket_url()
-        async with websockets.connect(ws_url) as ws:
-            while True:
-                data = await ws.recv()
-                if data:
-                    data = json.loads(data)
-                    if data['type'] == 'place':
-                        self.update_pixel(data['payload'])
+        while True:
+            ws_url = get_place_websocket_url()
+            async with websockets.connect(ws_url) as ws:
+                try:
+                    while True:
+                        data = await ws.recv()
+                        if data:
+                            data = json.loads(data)
+                            if data['type'] == 'place':
+                                self.update_pixel(data['payload'])
+                except websockets.exceptions.ConnectionClosed:
+                    pass
 
     def update_pixel(self, payload):
         x = payload['x']
@@ -82,6 +86,8 @@ class PlaceServer:
             await ws.send('{"error":true,"message":"The project is finished!"}')
             return
         (x, y, color) = action
+        logging.info('Telling {} to draw ({}, {}) color {}'.format(ws.remote_address,
+                                                                   x, y, color))
         await ws.send(json.dumps({"error":False,
                                   "x":int(x), "y":int(y),
                                   "color":int(color)}))

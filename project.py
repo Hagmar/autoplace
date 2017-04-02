@@ -39,9 +39,9 @@ class Project:
         try:
             img = Image.open(image)
         except OSError:
-            logging.error("Could not identify image file type")
-            return np.ones([1])
-        assert 0 <= self.x + img.width <= 999 and 0 <= self.y + img.height <= 999
+            logging.error("Could not open image file")
+            raise
+        assert 0 <= self.x + img.width <= 1000 and 0 <= self.y + img.height <= 1000
         return np.asarray(img)
 
     def map_colors(self, data):
@@ -60,6 +60,6 @@ class Project:
         if not pixels.size:
             return None
         index = pixels[np.random.randint(len(pixels))]
-        board_y = self.y + index[1]
-        board_x = self.x + index[0]
+        board_y = self.y + index[0]
+        board_x = self.x + index[1]
         return (board_x, board_y, self.target[index[0]][index[1]])

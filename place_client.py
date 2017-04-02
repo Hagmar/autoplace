@@ -79,7 +79,7 @@ class PlaceClient:
                                        json_response['y'],
                                        json_response['color'])
                 if not wait:
-                    break
+                    self.wait(120)
                 self.wait(wait)
 
     def draw_pixel(self, x, y, color):
@@ -94,13 +94,13 @@ class PlaceClient:
         except json.decoder.JSONDecodeError:
             print('Error: Drawing failed', file=sys.stderr)
             return False
-        print(status)
-        if not status['error']:
+        if 'error' not in status:
             print('Drew pixel ({}, {}) successfully!'.format(
                 x, y), file=sys.stderr)
+        else:
+            print('Error: Drawing failed', file=sys.stderr)
+        if 'wait_seconds' in status:
             return status['wait_seconds']
-        print('Error: Drawing failed', file=sys.stderr)
-        print(status)
         return False
 
     def wait(self, wait):
