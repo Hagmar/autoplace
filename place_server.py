@@ -3,6 +3,7 @@ from project import Project
 import argparse
 import asyncio
 import json
+import logging
 import re
 import requests as rq
 import sys
@@ -62,7 +63,7 @@ class PlaceServer:
 
     async def client_loop(self, ws, path):
         request = await ws.recv()
-        print('Received: {} from {}'.format(request, ws.remote_address))
+        logging.info('Received: {} from {}'.format(request, ws.remote_address))
         try:
             data = json.loads(request)
         except:
@@ -94,8 +95,10 @@ def get_place_websocket_url():
             return match.group(1)
 
 def main():
+    logging.basicConfig(format="%(asctime)s %(levelname)s  %(message)s", level=logging.INFO)
     args = parse_args()
     server = PlaceServer()
+    logging.info("Starting server. Listening on {}:{}".format(args.host, args.port))
     server.run(args)
 
 # TODO: Temporarily requires initial project

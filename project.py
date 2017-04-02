@@ -1,6 +1,7 @@
 from PIL import Image
 import numpy as np
 import sys
+import logging
 
 
 class Project:
@@ -38,8 +39,7 @@ class Project:
         try:
             img = Image.open(image)
         except OSError:
-            print("Error: could not identify image file type",
-                  file=sys.stderr)
+            logging.error("Could not identify image file type")
             return np.ones([1])
         assert 0 <= self.x + img.width <= 999 and 0 <= self.y + img.height <= 999
         return np.asarray(img)
