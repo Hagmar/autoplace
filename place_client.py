@@ -71,6 +71,10 @@ class PlaceClient:
                 json_response = json.loads(response)
                 error = json_response['error']
                 if error:
+                    if json_response['error_type'] == 'finished':
+                        print('Nothing to do right now!')
+                        wait(60)
+                        continue
                     print('Error: {}'.format(json_response['message']),
                           file=sys.stderr)
                     project = self.get_project_id()
@@ -78,9 +82,7 @@ class PlaceClient:
                 wait = self.draw_pixel(json_response['x'],
                                        json_response['y'],
                                        json_response['color'])
-                if not wait:
-                    self.wait(120)
-                self.wait(wait)
+                self.wait(wait or 120)
 
     def draw_pixel(self, x, y, color):
         payload = {

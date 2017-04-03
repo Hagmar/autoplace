@@ -16,11 +16,6 @@ URL_PLACE = 'https://www.reddit.com/r/place/'
 
 
 class PlaceServer:
-    _invalid_request_response = {
-        'error': True,
-        'message': 'Invalid request'
-    }
-
     def __init__(self):
         self.projects = {}
 
@@ -71,19 +66,19 @@ class PlaceServer:
         try:
             data = json.loads(request)
         except:
-            await ws.send('{"error":true,"message":"Invalid JSON request (invalid JSON)"}')
+            await ws.send('{"error":true,"error_type":"invalid","message":"Invalid JSON request (invalid JSON)"}')
             return
         if 'project' not in data:
-            await ws.send('{"error":true,"message":"Missing project argument"}')
+            await ws.send('{"error":true,"error_type":"missing","message":"Missing project argument"}')
             return
         try:
             project = self.projects[data['project']]
         except KeyError:
-            await ws.send('{"error":true,"message":"Project does not exist"}')
+            await ws.send('{"error":true,"error_type":"nonexisting","message":"Project does not exist"}')
             return
         action = project.get_pixel_to_change(self.board)
         if not action:
-            await ws.send('{"error":true,"message":"The project is finished!"}')
+            await ws.send('{"error":true,"error_type":"finished","message":"The project is finished!"}')
             return
         (x, y, color) = action
         logging.info('Telling {} to draw ({}, {}) color {}'.format(ws.remote_address,
