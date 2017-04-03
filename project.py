@@ -30,6 +30,8 @@ class Project:
         self.parse_image(image)
         self.h, self.w = self.target.shape
         self.pid = pid
+        self.i = 0
+        self.draw_cycle = 10
 
     def parse_image(self, image):
         data = self.read_image(image)
@@ -59,7 +61,8 @@ class Project:
         pixels = np.argwhere(diff)
         if not pixels.size:
             return None
-        index = pixels[np.random.randint(len(pixels))]
+        index = pixels[self.i%len(pixels)]
+        self.i = (self.i + 1) % self.draw_cycle
         board_y = self.y + index[0]
         board_x = self.x + index[1]
         return (board_x, board_y, self.target[index[0]][index[1]])
